@@ -12,3 +12,9 @@ Download the required toolchain from the 32XDK releases page: https://github.com
 Ensure the toolchain is correctly extracted to `sega-toolchain-12.1/sega/kobo32x` before building. 
 
 Compile using the provided `make` files.
+
+## Acknowledgments
+Chilly Willy, aka Joeseph Fenton for the advice and support.
+At the heart of this project beats this critical code, Thank you!
+https://forums.sonicretro.org/threads/sega-cd-mode-1-player.27372/
+https://gendev.spritesmind.net/forum/viewtopic.php?t=1018
