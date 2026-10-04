@@ -9,6 +9,6 @@ To compile this project from source, you must use Chilly Willy's Sega MD/CD/32X 
 
 Download the required toolchain from the 32XDK releases page: https://github.com/viciious/32XDK/releases
 
-Ensure the toolchain is correctly extracted to sega-toolchain-12.1/sega/kobo32x) before building. 
+Ensure the toolchain is correctly extracted to `sega-toolchain-12.1/sega/kobo32x` before building. 
 
-Compile using the provided make files.
+Compile using the provided `make` files.
