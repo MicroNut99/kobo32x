@@ -20,14 +20,13 @@ cd ../subcpu
 make clean && make cd               # -> CDROMPlayer.bin, cd/ (the disc files), CDROMPlayer.iso
 python3 make_mixed_cd2.py CDROMPlayer.iso Track02.wav Track03.wav Track04.wav   # -> CDROMPlayer_mixed.bin / .cue
 ```
-Make options: `ROOTDIR=/path/to/sega` (toolchain, default `/opt/toolchains/sega`; this Makefile ignores
-`GENDEV`) and `BOOTBLOCK=/opt/toolchains/sega/bootblocks/EU_BOOT.BIN` (region: `US_BOOT.BIN` default,
-`EU_BOOT.BIN`, `JP_BOOT.BIN`).
+Make options: `GENDEV=/path/to/sega` (toolchain, default `/opt/toolchains/sega`) and
+`BOOTBLOCK=/opt/toolchains/sega/bootblocks/EU_BOOT.BIN` (region: `US_BOOT.BIN` default, `EU_BOOT.BIN`,
+`JP_BOOT.BIN`).
 
-Needs **genisoimage**. The game files are in `ROMs/`, which the Makefile reads as `ROMS/`. On a
-case-sensitive file system (Linux, macOS), `mv ROMs ROMS` first, or the sound pack is left off the disc.
-The WAVs are 48 kHz: `make_mixed_cd2.py` needs Python 3.12 or older (or `pip install audioop-lts`) to
-convert them. `make_mixed_cd2.py` options: `--out NAME`, `--mode2`, `--pregap N` (see `../README.md`).
+Needs **genisoimage**. The game files live in `ROMs/`. The WAVs are 48 kHz: `make_mixed_cd2.py`
+converts them with `audioop` (Python 3.12 and older) or numpy (3.13+). Its options are `--out NAME`,
+`--mode2` and `--pregap N` (see `../README.md`).
 
 ## "ROM Loader for the Mega 32X RAM Cart" Credits
 * Programming : Chilly Willy and Victor Luchits

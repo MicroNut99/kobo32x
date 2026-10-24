@@ -11,25 +11,20 @@ this version is engineered specifically to execute entirely from the Kega Fusion
   https://github.com/viciious/32XDK/releases. The Makefiles expect it at `/opt/toolchains/sega` (folders `sh-elf/`,
   `m68k-elf/`, `ldscripts/`, `bootblocks/`, `bin/`). The original setup keeps this project inside the toolchain
   folder, as `sega-toolchain-12.1/sega/kobo32x`.
-  - Toolchain somewhere else: `sh2/Makefile` takes `GENDEV=/path/to/sega`. `subcpu/Makefile` ignores `GENDEV`:
-    give it `ROOTDIR=/path/to/sega` (`make cd ROOTDIR=...`), or link `/opt/toolchains/sega` to your toolchain.
-    (`build.sh` passes neither, so with `build.sh` the link is the simple way.)
+  - Toolchain somewhere else: `GENDEV=/path/to/sega bash build.sh` (both Makefiles read `GENDEV`).
 - **genisoimage** (makes the ISO) and **python3**.
-- **The disc image step:** `Track02-04.wav` are 48 kHz and the disc needs 44.1 kHz. `make_mixed_cd2.py`
-  converts them with Python's `audioop`, which **Python 3.13 removed**. Use Python 3.12 or older, or
-  `pip install audioop-lts` on 3.13+. Or convert the WAVs first:
-  `ffmpeg -i Track02.wav -ar 44100 -ac 2 -sample_fmt s16 Track02_44k.wav` (and name those on the command line).
-- **Linux / macOS (case-sensitive file systems):** the game files are in `subcpu/ROMs/`, but the Makefile
-  reads `subcpu/ROMS/`. Rename the folder once: `mv subcpu/ROMs subcpu/ROMS`. Without it the sound pack
-  (`KOBOSFX.BIN`) is left off the disc. On a Windows drive (WSL `/mnt/...`) they are the same folder.
+- **For the disc image:** `Track02-04.wav` are 48 kHz, and `make_mixed_cd2.py` converts them to the CD's
+  44.1 kHz. It uses Python's `audioop` on Python 3.12 and older. On Python 3.13+ it uses **numpy**
+  (`pip install numpy`), which gives the same bytes.
 
 ### One command
 ```bash
 cd kobo32x
-bash build.sh
+bash build.sh                              # toolchain in /opt/toolchains/sega
+GENDEV=/path/to/sega bash build.sh         # toolchain somewhere else
 ```
 The compiler prints some warnings (unused functions, `pri_start`); they are expected.
-`build.sh` takes **no arguments or switches**. It runs these steps in order:
+`build.sh` takes **no arguments**. Its only setting is the `GENDEV` environment variable. It runs these steps in order:
 1. Writes `sh2/track_len.h` from the length of `subcpu/Track02.wav`. `sh2_main.c` currently overrides
    this with `TRACK02_SECONDS 60`: the demo starts after 60 s on an idle menu.
 2. Builds the SH2 program (`sh2/D32XR.32x`).
@@ -40,20 +35,19 @@ The compiler prints some warnings (unused functions, `pri_start`); they are expe
 ### Step by step (what `build.sh` runs)
 ```bash
 cd sh2    && make clean && make        # -> sh2/D32XR.32x            (make GENDEV=/path/to/sega ...)
-cd ../subcpu && make clean && make cd  # -> CDROMPlayer.bin, cd/, CDROMPlayer.iso  (make cd ROOTDIR=/path/to/sega ...)
+cd ../subcpu && make clean && make cd  # -> CDROMPlayer.bin, cd/, CDROMPlayer.iso  (make cd GENDEV=/path/to/sega ...)
 python3 make_mixed_cd2.py CDROMPlayer.iso Track02.wav Track03.wav Track04.wav
                                        # -> CDROMPlayer_mixed.bin / .cue
 ```
-`make cd` copies `../sh2/D32XR.32x` to `ROMS/KOBO32X.BIN`, builds it into the Sub-CPU program, and puts
+`make cd` copies `../sh2/D32XR.32x` to `ROMs/KOBO32X.BIN`, builds it into the Sub-CPU program, and puts
 `APP.BIN`, `KOBOGFX.BIN`, `KOBOSFX.BIN`, `IMAGE.RAW` and `KOBO32X.BIN` on the disc.
 
 **Make options**
 | Option | Where | What it does |
 |---|---|---|
-| `GENDEV=/path/to/sega` | `sh2` | toolchain folder (default `/opt/toolchains/sega`) |
-| `ROOTDIR=/path/to/sega` | `subcpu` | toolchain folder (default `/opt/toolchains/sega`) |
+| `GENDEV=/path/to/sega` | both | toolchain folder (default `/opt/toolchains/sega`); also read from the environment |
 | `BOOTBLOCK=/opt/toolchains/sega/bootblocks/EU_BOOT.BIN` | `subcpu` | disc region: `US_BOOT.BIN` (default), `EU_BOOT.BIN`, `JP_BOOT.BIN` |
-| `make clean` | both | removes the build outputs (in `subcpu/`: `*.bin`, `*.elf`, `*.iso`, `cd/` - not `ROMS/`) |
+| `make clean` | both | removes the build outputs (in `subcpu/`: `*.bin`, `*.elf`, `*.iso`, `cd/` - not `ROMs/`) |
 
 **`make_mixed_cd2.py` options**
 ```
